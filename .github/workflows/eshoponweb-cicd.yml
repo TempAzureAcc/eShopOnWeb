@@ -78,14 +78,29 @@ jobs:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
            
     # Deploy Azure WebApp using Bicep file
-    - name: deploy
-      uses: azure/arm-deploy@v2
-      with:
-        subscriptionId: ${{ env.SUBSCRIPTION-ID }}
-        resourceGroupName: ${{ env.RESOURCE-GROUP }}
-        template: bicep-template/webapp.bicep
-        parameters: 'webAppName=${{ env.WEBAPP-NAME }} location=${{ env.LOCATION }}'
-        failOnStdErr: false   
+    # - name: deploy
+    #   uses: azure/arm-deploy@v2
+    #   with:
+    #     subscriptionId: ${{ env.SUBSCRIPTION-ID }}
+    #     resourceGroupName: ${{ env.RESOURCE-GROUP }}
+    #     template: bicep-template/webapp.bicep
+    #     parameters: 'webAppName=${{ env.WEBAPP-NAME }} location=${{ env.LOCATION }}'
+    #     failOnStdErr: false   
+    # ✅ Debug Step 1: List downloaded files
+    - name: List files in bicep-template
+      run: ls -R bicep-template
+
+    # ✅ Debug Step 2: Validate Bicep Template
+    - name: Validate Bicep Template
+      run: az bicep build --file bicep-template/webapp.bicep
+
+    # ✅ Debug Step 3: Preview Deployment
+    - name: Preview Deployment
+      run: |
+        az deployment group what-if \
+          --resource-group ${{ env.RESOURCE-GROUP }} \
+          --template-file bicep-template/webapp.bicep \
+          --parameters webAppName=${{ env.WEBAPP-NAME }} location=${{ env.LOCATION }}
   
       
     # Publish website to Azure App Service (WebApp)
